@@ -1,16 +1,16 @@
 # BFSX2用機械学習データ作成ツール
 
 ### ■ このツールについて
-このツールはこちらのnoteで公開した手順のうち、「３ー４．学習を行ってモデルを作る」で使う学習データを作成するためのツールです。
+このツールはこちらのnoteで公開した手順のうち、「３ー４．学習を行ってモデルを作る」で使う学習データを作成するためのツールです。  
 https://note.com/kunmosky1/n/n2616f0ecc031
 
 このツールで作成した学習モデル (.zipファイル) があれば、BFSX2に同梱されている mlbot.py を使うことで機械学習の結果に沿った実取引を行うことが出来ます。
 
 ### ■ 構成ファイル
-#### ●　```model_gererator.ipynb```
+#### ●　<a href="https://github.com/kunmosky1/model_generator/blob/master/model_gererator.ipynb">```model_gererator.ipynb```</a>
 学習モデルを作る手順を Jupyter のノートブック形式で用意しました。結果を確認しながら必要な処理をステップバイステップで実行することが出来ます。
 
-#### ●　```model_gererator.py```
+#### ●　<a href="https://github.com/kunmosky1/model_generator/blob/master/model_gererator.py">```model_gererator.py```</a>
 全ての一連の手順を実行する場合には、こちらのpythonスクリプトを使うことが出来ます。プロットされた画像や途中経過は指定したwebhookでDiscordへ送ることもできますし、最終的に出来上がったzipファイルに入っている画像やログを確認することもできます。
 
 
