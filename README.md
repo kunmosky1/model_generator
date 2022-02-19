@@ -13,6 +13,9 @@ https://note.com/kunmosky1/n/n2616f0ecc031
 #### ●　<a href="https://github.com/kunmosky1/model_generator/blob/master/model_gererator.py">```model_gererator.py```</a>
 全ての一連の手順を実行する場合には、こちらのpythonスクリプトを使うことが出来ます。プロットされた画像や途中経過は指定したwebhookでDiscordへ送ることもできますし、最終的に出来上がったzipファイルに入っている画像やログを確認することもできます。
 
+#### ●　```20220218_225021_Gmo_BTC_JPY_richmanbtc.zip```フォルダ
+作成されたアウトプットのサンプルです。学習済みモデルや選択した特徴量の情報が入っているので、このzipファイルを BFSX2 の mlbot.py に使うことで実取引が可能になります。
+
 
 #### ●　```libs```フォルダ
 各種作業を行う実際のコードが入っています。こちらの中身は**BFSX2メンバー限定**で公開します（こちらのリポジトリにはダミーファイルしか入っていません）
