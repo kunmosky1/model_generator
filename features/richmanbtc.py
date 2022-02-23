@@ -11,7 +11,7 @@ def params():
             'pyramiding': 1,         # 最大ポジション
 
             # 指値位置のパラメータ
-            'entryLength' : 14, 'entryPoint': 0.28 } 
+            'entryLength' : 14, 'entryPoint': 0.30 } 
 
 
 # 指値位置の計算

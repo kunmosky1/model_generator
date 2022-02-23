@@ -78,7 +78,10 @@ if calclate_features.endswith(".py") :
 
     # 重要度を考慮した特徴量の削除
     delete_features = machine_learning.eliminate_features( logger, discord, df, list(set(features)-set(logic['nouse_columns'])),
-                                                       repeat= 30, threshold = 3.0, goal = 0.3, imgfile = temp_path+"importance.png" )
+                                                           repeat= 30,       # 削除処理を何回まで繰り返すか
+                                                           threshold = 2.0,  # 削除する閾値 (小さいほど積極的に削除する 1.5～4.0)
+                                                           goal = 0.3,       # 重要度がいくらまで減ったら終了するか
+                                                           imgfile = temp_path+"importance.png" )
 
     # 全区間のクロスバリデーションによる評価
     profit_per_day = machine_learning.cross_validation(logger, discord, model, df,
@@ -113,14 +116,14 @@ test_df, predict = model.evaluation( df[split_date:], report=False ) # 学習モ
 
 if calclate_features.endswith(".py") :
     train_df, predict = model.evaluation( df[:split_date], report=False ) # 学習モデルで学習期間の評価
-    machine_learning.backtest_maxpos( logger, discord, train_df, test_df, model, logic, predict, image_path=temp_path ) # 全区間でのバックテスト (ポジション上限無し)
-    machine_learning.backtest_pos1( logger, discord, train_df, test_df, model, logic, predict, image_path=temp_path )   # 全区間でのバックテスト  (ポジションを上限１に制限した場合）
-    machine_learning.backtest_ml_vs_all( logger, discord, test_df, model, logic, predict, image_path=temp_path )        # 機械学習の結果に沿ってエントリーした場合と、無条件で全区間エントリーした場合の比較
-    machine_learning.backtest_detail( logger, discord, test_df, model, logic, predict, image_path=temp_path )           # 評価期間の詳細なバックテスト  (ポジションを上限１に制限した場合）
+    machine_learning.backtest_all( logger, discord, train_df, test_df, model, logic, predict, image_path=temp_path, max_pos=99 ) # 全区間でのバックテスト (ポジション上限無し)
+    machine_learning.backtest_all( logger, discord, train_df, test_df, model, logic, predict, image_path=temp_path, max_pos=1 )  # 全区間でのバックテスト  (ポジションを上限１に制限した場合）
+    machine_learning.backtest_ml_vs_all( logger, discord, test_df, model, logic, predict, image_path=temp_path, max_pos=1 )      # 機械学習の結果に沿ってエントリーした場合と、無条件で全区間エントリーした場合の比較
+    machine_learning.backtest_detail( logger, discord, test_df, model, logic, predict, image_path=temp_path, max_pos=logic['params']['pyramiding'] ) # 評価期間の詳細なバックテスト  (ポジションを上限はパラメータで指定した値）
 
 else:
     machine_learning.backtest_ml_vs_all( logger, discord, test_df, model, logic, predict, image_path=temp_path, days=30 )  # 機械学習の結果に沿ってエントリーした場合と、無条件で全区間エントリーした場合の比較
-    machine_learning.backtest_detail( logger, discord, test_df, model, logic, predict, image_path=temp_path, days=30 )     # 直近30日の詳細なバックテスト  (ポジションを上限１に制限した場合）
+    machine_learning.backtest_detail( logger, discord, test_df, model, logic, predict, image_path=temp_path, days=30, max_pos=logic['params']['pyramiding'] )  # 直近30日の詳細なバックテスト  (ポジションを上限はパラメータで指定した値）
 
 # 完成したモデルを zip ファイルで出力
 if calclate_features.endswith(".py") :
