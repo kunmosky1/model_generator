@@ -7,7 +7,7 @@ import numpy as np
 def params():
     return {'pips': 1,               # 呼び値 (取引所、取引ペアごとに異なるので、適切に設定してください)
             'timescale': 900,        # 足の長さ(秒)
-            'num_of_candle' : 5000,  # 稼働時に用意する足の本数
+            'num_of_candle' : 500,   # 稼働時に用意する足の本数
             'pyramiding': 1,         # 最大ポジション
 
             # 指値位置のパラメータ
@@ -34,6 +34,7 @@ def limit_price(df, **kwargs):
 
 #---------------------------特徴量を計算してDataFrameに格納
 def calculate_features( df, nouse_columns ):
+    window = params()['num_of_candle']-100
 
     open = df['open']
     high = df['high']
@@ -48,15 +49,15 @@ def calculate_features( df, nouse_columns ):
     df['BBANDS_upperband'] -= hilo
     df['BBANDS_middleband'] -= hilo
     df['BBANDS_lowerband'] -= hilo
-    df['DEMA'] = talib.DEMA(close, timeperiod=30) - hilo
-    df['EMA'] = talib.EMA(close, timeperiod=30) - hilo
+    df['DEMA'] = df['close'].rolling(window).apply(lambda prices: talib.DEMA(np.array(prices, dtype='f8'), timeperiod=30)[-1], raw=True) - hilo
+    df['EMA'] = df['close'].rolling(window).apply(lambda prices: talib.EMA(np.array(prices, dtype='f8'), timeperiod=30)[-1], raw=True) - hilo
     df['HT_TRENDLINE'] = talib.HT_TRENDLINE(close) - hilo
-    df['KAMA'] = talib.KAMA(close, timeperiod=30) - hilo
+    df['KAMA'] = df['close'].rolling(window).apply(lambda prices: talib.KAMA(np.array(prices, dtype='f8'), timeperiod=30)[-1], raw=True) - hilo
     df['MA'] = talib.MA(close, timeperiod=30, matype=0) - hilo
     df['MIDPOINT'] = talib.MIDPOINT(close, timeperiod=14) - hilo
     df['SMA'] = talib.SMA(close, timeperiod=30) - hilo
     df['T3'] = talib.T3(close, timeperiod=5, vfactor=0) - hilo
-    df['TEMA'] = talib.TEMA(close, timeperiod=30) - hilo
+    df['TEMA'] = df['close'].rolling(window).apply(lambda prices: talib.TEMA(np.array(prices, dtype='f8'), timeperiod=30)[-1], raw=True) - hilo
     df['TRIMA'] = talib.TRIMA(close, timeperiod=30) - hilo
     df['WMA'] = talib.WMA(close, timeperiod=30) - hilo
 
@@ -80,20 +81,28 @@ def calculate_features( df, nouse_columns ):
     df['STOCH_slowk'], df['STOCH_slowd'] = talib.STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
     df['STOCHF_fastk'], df['STOCHF_fastd'] = talib.STOCHF(high, low, close, fastk_period=5, fastd_period=3, fastd_matype=0)
     df['STOCHRSI_fastk'], df['STOCHRSI_fastd'] = talib.STOCHRSI(close, timeperiod=14, fastk_period=5, fastd_period=3, fastd_matype=0)
-    df['TRIX'] = talib.TRIX(close, timeperiod=30)
+    df['TRIX'] = df['close'].rolling(window).apply(lambda prices: talib.TRIX(np.array(prices, dtype='f8'), timeperiod=30)[-1], raw=True)
     df['ULTOSC'] = talib.ULTOSC(high, low, close, timeperiod1=7, timeperiod2=14, timeperiod3=28)
     df['WILLR'] = talib.WILLR(high, low, close, timeperiod=14)
 
-    df['AD'] = talib.AD(high, low, close, volume)
+    df['AD'] = df['close'].rolling(window).apply(
+                lambda x,df : talib.AD(np.array(df.loc[x.index,'high'],dtype='f8'),
+                                       np.array(df.loc[x.index,'low'],dtype='f8'),
+                                       np.array(df.loc[x.index,'close'],dtype='f8'),
+                                       np.array(df.loc[x.index,'volume'],dtype='f8')
+                                      )[-1], args=(df,), raw=False)
     df['ADOSC'] = talib.ADOSC(high, low, close, volume, fastperiod=3, slowperiod=10)
-    df['OBV'] = talib.OBV(close, volume)
+    df['OBV'] = df['close'].rolling(window).apply(
+                lambda x,df : talib.OBV(np.array(df.loc[x.index,'close'],dtype='f8'),
+                                        np.array(df.loc[x.index,'volume'],dtype='f8')
+                                       )[-1], args=(df,), raw=False)
 
     df['ATR'] = talib.ATR(high, low, close, timeperiod=14)
     df['NATR'] = talib.NATR(high, low, close, timeperiod=14)
     df['TRANGE'] = talib.TRANGE(high, low, close)
 
     df['HT_DCPERIOD'] = talib.HT_DCPERIOD(close)
-    df['HT_DCPHASE'] = talib.HT_DCPHASE(close)
+    df['HT_DCPHASE'] = df['close'].rolling(window).apply(lambda prices: talib.HT_DCPHASE(np.array(prices, dtype='f8'))[-1], raw=True)
     df['HT_PHASOR_inphase'], df['HT_PHASOR_quadrature'] = talib.HT_PHASOR(close)
     df['HT_SINE_sine'], df['HT_SINE_leadsine'] = talib.HT_SINE(close)
     df['HT_TRENDMODE'] = talib.HT_TRENDMODE(close)
